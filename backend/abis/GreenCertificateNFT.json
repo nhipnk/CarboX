@@ -1,0 +1,24 @@
+{
+  "abi": [
+    "constructor()",
+    "event MarketplaceUpdated(address indexed oldMarketplace, address indexed newMarketplace)",
+    "event CertificateMinted(uint256 indexed tokenId, address indexed buyer, uint256 indexed projectId, uint256 retiredTokenAmount, uint256 retiredCO2Kg, string certificateURI)",
+    "event CertificateRevoked(uint256 indexed tokenId, string reason)",
+    "event CertificateURIUpdated(uint256 indexed tokenId, string newURI)",
+    "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
+    "event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId)",
+    "event ApprovalForAll(address indexed owner, address indexed operator, bool approved)",
+    "function setMarketplace(address _marketplace) external",
+    "function mintCertificate(address to, uint256 projectId, uint256 retiredTokenAmount, uint256 retiredCO2Kg, string memory certificateURI) external returns (uint256)",
+    "function revokeCertificate(uint256 tokenId, string memory reason) external",
+    "function updateCertificateURI(uint256 tokenId, string memory newURI) external",
+    "function pause() external",
+    "function unpause() external",
+    "function tokenURI(uint256 tokenId) external view returns (string memory)",
+    "function isRevoked(uint256 tokenId) external view returns (bool)",
+    "function certificates(uint256) external view returns (uint256 projectId, uint256 retiredTokenAmount, uint256 retiredCO2Kg, address buyer, uint256 retiredAt, string memory certificateURI, bool revoked)",
+    "function balanceOf(address owner) external view returns (uint256)",
+    "function ownerOf(uint256 tokenId) external view returns (address)",
+    "function marketplace() external view returns (address)"
+  ]
+}
