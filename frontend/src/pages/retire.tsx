@@ -480,13 +480,29 @@ const Retire: NextPage = () => {
                     ? 'bg-green-500/10 border border-green-500/20'
                     : 'bg-yellow-500/10 border border-yellow-500/20'
                 }`}>
-                  {isApproved
-                    ? <p className="text-green-400">✅ Đã cấp quyền cho Marketplace</p>
-                    : <p className="text-yellow-400">⚠️ Cần Approve Marketplace trước (1 lần duy nhất)</p>
-                  }
+                  {isApproved ? (
+                    <p className="text-green-400">✅ Đã cấp quyền cho Marketplace</p>
+                  ) : (
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-yellow-400">⚠️ Cần Approve Marketplace trước (1 lần duy nhất)</p>
+                      <button
+                        onClick={async () => {
+                          setError('');
+                          try {
+                            await approve();
+                          } catch (e) {
+                            setError(formatErrorMessage(e));
+                          }
+                        }}
+                        disabled={isApproving}
+                        className="shrink-0 bg-yellow-500 hover:bg-yellow-400 disabled:bg-white/10 disabled:text-gray-500 text-black font-bold px-4 py-2 rounded-lg text-xs transition-all"
+                      >
+                        {isApproving ? 'Đang approve...' : '🔐 Approve ngay'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
-
               <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 mb-6">
                 <p className="text-green-400 text-sm font-medium mb-1">Bạn sẽ nhận được:</p>
                 <p className="text-white text-sm">
