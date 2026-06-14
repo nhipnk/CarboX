@@ -162,7 +162,17 @@ export const AdminDisputeTab = () => {
     setError('');
     try {
       const nextId = Number(nextListingIdData);
-      console.log('NEXT LISTING ID:', nextId);
+      console.log('🔍 [AdminDisputeTab] NEXT LISTING ID:', nextId);
+      
+      if (nextId <= 1) {
+        console.warn('⚠️ [AdminDisputeTab] Không có listing nào để check (nextId <= 1)');
+        setItems([]);
+        setLoading(false);
+        return;
+      }
+
+      console.log('🔍 [AdminDisputeTab] Sẽ loop từ id=1 đến id=' + (nextId - 1));
+      
       const results: OpenDisputeItem[] = [];
 
       for (let id = 1; id <= nextId - 1; id++) {
@@ -178,18 +188,12 @@ export const AdminDisputeTab = () => {
             args: [listingId],
           })) as readonly [bigint, string, string, bigint, boolean];
         
-          console.log('========================');
-          console.log('LISTING ID:', id);
-          console.log('DISPUTE RAW:', disputeRaw);
-          console.log('========================');
+          console.log(`📋 [AdminDisputeTab] Listing ${id} - dispute.active = ${disputeRaw[4]}`);
         
         } catch (error) {
           console.error(
-            'READ DISPUTE ERROR',
-            {
-              listingId: id,
-              error,
-            }
+            `❌ [AdminDisputeTab] Failed to read dispute for listing ${id}:`,
+            error
           );
         
           continue;
@@ -203,7 +207,12 @@ export const AdminDisputeTab = () => {
           active: disputeRaw[4],
         };
 
-        if (!dispute.active) continue;
+        if (!dispute.active) {
+          console.log(`⏭️ [AdminDisputeTab] Skipping listing ${id}: dispute not active`);
+          continue;
+        }
+
+        console.log(`✅ [AdminDisputeTab] Found active dispute for listing ${id}:`, dispute);
 
         const listingRaw = (await publicClient.readContract({
           address: CONTRACT_ADDRESSES.CARBON_MARKETPLACE,
@@ -225,9 +234,10 @@ export const AdminDisputeTab = () => {
         results.push({ listing, dispute });
       }
 
+      console.log(`🎯 [AdminDisputeTab] Total active disputes found: ${results.length}`);
       setItems(results);
     } catch (e: any) {
-      console.error(e);
+      console.error('[AdminDisputeTab] Error loading disputes:', e);
       setError(e?.message || 'Lỗi khi tải dữ liệu tranh chấp');
     } finally {
       setLoading(false);
