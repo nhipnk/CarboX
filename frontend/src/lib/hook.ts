@@ -26,9 +26,9 @@ export const GAS_LIMITS = {
   retireCredits: 700000n,
   voteOnProject: 400000n,
   addValidator: 400000n,
-  openDispute: 400000n,     
-  resolveDispute: 400000n,   
-  withdrawProceeds: 400000n,
+  openDispute: 700000n,     
+  resolveDispute: 700000n,   
+  withdrawProceeds: 700000n,
 } as const;
 
 type ReceiptWaitOptions = {
