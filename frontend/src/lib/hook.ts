@@ -26,6 +26,8 @@ export const GAS_LIMITS = {
   retireCredits: 700000n,
   voteOnProject: 250000n,
   addValidator: 150000n,
+  openDispute: 200000n,     
+  resolveDispute: 250000n,   
 } as const;
 
 type ReceiptWaitOptions = {
@@ -287,4 +289,56 @@ export function useAddValidator() {
   };
 
   return { addValidator, isPending };
+}
+
+// ── Mở tranh chấp (buyer hoặc validator) ──────────────────────
+export function useOpenDispute() {
+  const { writeContractAsync, isPending } = useWriteContract();
+  const publicClient = usePublicClient({ chainId: NETWORK.CHAIN_ID });
+
+  const openDispute = async (listingId: bigint, reason: string) => {
+    const hash = await writeContractAsync({
+      address: CONTRACT_ADDRESSES.CARBON_MARKETPLACE,
+      abi: CARBON_MARKETPLACE_ABI,
+      functionName: "openDispute",
+      args: [listingId, reason],
+      gas: 200000n,
+    });
+
+    if (publicClient && hash) {
+      const receipt = await waitForReceipt(publicClient, hash);
+      if (receipt?.status === 'reverted') {
+        throw new Error('Giao dịch bị revert trên blockchain');
+      }
+    }
+    return hash;
+  };
+
+  return { openDispute, isPending };
+}
+
+// ── Giải quyết tranh chấp (validator vote) ────────────────────
+export function useResolveDispute() {
+  const { writeContractAsync, isPending } = useWriteContract();
+  const publicClient = usePublicClient({ chainId: NETWORK.CHAIN_ID });
+
+  const resolveDispute = async (listingId: bigint, penalizeSeller: boolean) => {
+    const hash = await writeContractAsync({
+      address: CONTRACT_ADDRESSES.CARBON_MARKETPLACE,
+      abi: CARBON_MARKETPLACE_ABI,
+      functionName: "resolveDispute",
+      args: [listingId, penalizeSeller],
+      gas: 250000n,
+    });
+
+    if (publicClient && hash) {
+      const receipt = await waitForReceipt(publicClient, hash);
+      if (receipt?.status === 'reverted') {
+        throw new Error('Giao dịch bị revert trên blockchain');
+      }
+    }
+    return hash;
+  };
+
+  return { resolveDispute, isPending };
 }
