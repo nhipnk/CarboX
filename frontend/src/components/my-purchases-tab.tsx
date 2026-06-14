@@ -1,35 +1,10 @@
 // ==================== MY PURCHASES TAB ====================
 // Component để THÊM vào marketplace.tsx — tab "Giao dịch của tôi"
-// Hướng dẫn tích hợp ở cuối file.
 
 import { useState, useEffect } from 'react';
-import { useAccount, useReadContract, usePublicClient } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { useOpenDispute } from '../lib/hook';
-import { CONTRACT_ADDRESSES, CARBON_MARKETPLACE_ABI, NETWORK } from '../lib/contract';
-
-type ListingInfo = {
-  listingId: bigint;
-  projectId: bigint;
-  seller: string;
-  amount: bigint;
-  pricePerUnit: bigint;
-  active: boolean;
-  createdAt: bigint;
-};
-
-type DisputeInfo = {
-  listingId: bigint;
-  initiator: string;
-  reason: string;
-  votes: bigint;
-  active: boolean;
-};
-
-type PurchasedListing = {
-  listing: ListingInfo;
-  purchasedAmount: bigint;
-  dispute: DisputeInfo | null;
-};
+import { getTransactionHistory, type Transaction } from '../lib/api';
 
 // ── Modal mở tranh chấp ──────────────────────────────────────
 const OpenDisputeModal = ({
@@ -110,85 +85,64 @@ const OpenDisputeModal = ({
   );
 };
 
-// ── Card cho 1 listing đã mua ─────────────────────────────────
-const PurchasedListingCard = ({
-  item,
+// ── Card cho 1 giao dịch mua (TRANSFER với fromAddress = mình) ────
+const PurchaseTxCard = ({
+  tx,
   onOpenDispute,
 }: {
-  item: PurchasedListing;
-  onOpenDispute: (listingId: bigint) => void;
+  tx: Transaction;
+  onOpenDispute: (listingId: number) => void;
 }) => {
-  const { listing, purchasedAmount, dispute } = item;
-  const hasActiveDispute = dispute?.active === true;
+  const hasListingId = tx.listingId !== undefined && tx.listingId !== null;
 
   return (
     <div className="bg-white/3 border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-white font-bold text-lg">Listing #{listing.listingId.toString()}</h3>
+          <h3 className="text-white font-bold text-lg">
+            Giao dịch mua token{hasListingId ? ` — Listing #${tx.listingId}` : ''}
+          </h3>
           <p className="text-gray-500 text-sm font-mono mt-1">
-            Seller: {listing.seller.slice(0, 10)}...{listing.seller.slice(-8)}
+            {tx.txHash?.slice(0, 10)}...{tx.txHash?.slice(-8)}
           </p>
         </div>
-        {hasActiveDispute ? (
-          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-500/20 text-red-400">
-            ⚠️ Đang tranh chấp
-          </span>
-        ) : (
-          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-500/20 text-green-400">
-            ✅ Bình thường
-          </span>
-        )}
+        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-500/20 text-green-400">
+          ✅ Bình thường
+        </span>
       </div>
 
       <div className="grid grid-cols-3 gap-4 text-sm mb-5">
         <div>
-          <p className="text-gray-500 text-xs">Project ID</p>
-          <p className="text-white font-semibold">#{listing.projectId.toString()}</p>
+          <p className="text-gray-500 text-xs">Số lượng</p>
+          <p className="text-green-400 font-semibold">{tx.amount} token</p>
         </div>
         <div>
-          <p className="text-gray-500 text-xs">Bạn đã mua</p>
-          <p className="text-green-400 font-semibold">{purchasedAmount.toString()} token</p>
+          <p className="text-gray-500 text-xs">Block</p>
+          <p className="text-white font-semibold">#{tx.blockNumber}</p>
         </div>
         <div>
-          <p className="text-gray-500 text-xs">Giá / token</p>
-          <p className="text-white font-semibold">{listing.pricePerUnit.toString()} wei</p>
+          <p className="text-gray-500 text-xs">Ngày</p>
+          <p className="text-white font-semibold">
+            {new Date(tx.timestamp).toLocaleDateString('vi-VN')}
+          </p>
         </div>
       </div>
 
-      {hasActiveDispute && dispute && (
-        <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4 mb-4 text-sm space-y-2">
-          <div className="flex justify-between">
-            <span className="text-gray-400">Người mở</span>
-            <span className="text-gray-300 font-mono text-xs">
-              {dispute.initiator.slice(0, 10)}...{dispute.initiator.slice(-8)}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-400">Lý do</span>
-            <span className="text-white text-right max-w-[60%]">{dispute.reason}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-400">Số phiếu</span>
-            <span className="text-yellow-400 font-bold">{dispute.votes.toString()}</span>
-          </div>
-        </div>
-      )}
-
       <div className="flex items-center gap-3">
         <button
-          onClick={() => window.open(`https://sepolia.etherscan.io/address/${listing.seller}`, '_blank')}
+          onClick={() => window.open(`https://sepolia.etherscan.io/tx/${tx.txHash}`, '_blank')}
           className="border border-white/10 text-gray-400 hover:text-white hover:border-white/30 px-4 py-2 rounded-lg text-sm transition-all"
         >
-          🔗 Xem ví người bán ↗
+          🔗 Xem giao dịch ↗
         </button>
         <div className="flex-1" />
         <button
-          onClick={() => onOpenDispute(listing.listingId)}
-          disabled={hasActiveDispute}
+          onClick={() => hasListingId && onOpenDispute(tx.listingId!)}
+          disabled={!hasListingId}
+          title={!hasListingId ? 'Giao dịch này chưa có Listing ID (dữ liệu cũ)' : undefined}
           className="border border-red-500/30 text-red-400 hover:bg-red-500/10 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 rounded-lg text-sm transition-all"
         >
-          {hasActiveDispute ? 'Đã có tranh chấp' : '⚠️ Mở tranh chấp'}
+          ⚠️ Mở tranh chấp
         </button>
       </div>
     </div>
@@ -198,91 +152,34 @@ const PurchasedListingCard = ({
 // ── Tab nội dung chính ─────────────────────────────────────
 export const MyPurchasesTab = () => {
   const { address, isConnected } = useAccount();
-  const publicClient = usePublicClient({ chainId: NETWORK.CHAIN_ID });
 
-  const [items, setItems] = useState<PurchasedListing[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [disputeTarget, setDisputeTarget] = useState<bigint | null>(null);
+  const [disputeTarget, setDisputeTarget] = useState<{ listingId: bigint } | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
-
-  const { data: nextListingIdData, refetch: refetchNextId } = useReadContract({
-    address: CONTRACT_ADDRESSES.CARBON_MARKETPLACE,
-    abi: CARBON_MARKETPLACE_ABI,
-    functionName: 'nextListingId',
-    query: { enabled: true },
-  });
 
   const showSuccess = (msg: string) => {
     setSuccessMsg(msg);
     setTimeout(() => setSuccessMsg(''), 5000);
   };
 
-  const loadPurchasedListings = async () => {
-    if (!publicClient || !address || nextListingIdData === undefined) return;
-
+  const loadPurchases = async () => {
+    if (!address) return;
     setLoading(true);
     setError('');
     try {
-      const nextId = Number(nextListingIdData);
-      const results: PurchasedListing[] = [];
-
-      for (let id = 1; id < nextId; id++) {
-        const listingId = BigInt(id);
-
-        const purchasedAmount = (await publicClient.readContract({
-          address: CONTRACT_ADDRESSES.CARBON_MARKETPLACE,
-          abi: CARBON_MARKETPLACE_ABI,
-          functionName: 'buyerPurchased',
-          args: [listingId, address],
-        })) as bigint;
-
-        if (purchasedAmount === BigInt(0)) continue;
-
-        const listingRaw = (await publicClient.readContract({
-          address: CONTRACT_ADDRESSES.CARBON_MARKETPLACE,
-          abi: CARBON_MARKETPLACE_ABI,
-          functionName: 'listings',
-          args: [listingId],
-        })) as readonly [bigint, bigint, string, bigint, bigint, boolean, bigint];
-
-        const listing: ListingInfo = {
-          listingId: listingRaw[0],
-          projectId: listingRaw[1],
-          seller: listingRaw[2],
-          amount: listingRaw[3],
-          pricePerUnit: listingRaw[4],
-          active: listingRaw[5],
-          createdAt: listingRaw[6],
-        };
-
-        let dispute: DisputeInfo | null = null;
-        try {
-          const disputeRaw = (await publicClient.readContract({
-            address: CONTRACT_ADDRESSES.CARBON_MARKETPLACE,
-            abi: CARBON_MARKETPLACE_ABI,
-            functionName: 'disputes',
-            args: [listingId],
-          })) as readonly [bigint, string, string, bigint, boolean];
-
-          dispute = {
-            listingId: disputeRaw[0],
-            initiator: disputeRaw[1],
-            reason: disputeRaw[2],
-            votes: disputeRaw[3],
-            active: disputeRaw[4],
-          };
-        } catch {
-          dispute = null;
-        }
-
-        results.push({ listing, purchasedAmount, dispute });
-      }
-
-      setItems(results);
+      const data = await getTransactionHistory(address);
+      // Giao dịch mua: TRANSFER với fromAddress = mình
+      const purchases = (Array.isArray(data) ? data : []).filter(
+        (tx) =>
+          tx.transactionType === 'TRANSFER' &&
+          tx.fromAddress?.toLowerCase() === address.toLowerCase()
+      );
+      setTransactions(purchases);
     } catch (e: any) {
       console.error(e);
-      setError(e?.message || 'Lỗi khi tải dữ liệu giao dịch');
+      setError(e?.message || 'Lỗi khi tải lịch sử giao dịch');
     } finally {
       setLoading(false);
     }
@@ -290,17 +187,20 @@ export const MyPurchasesTab = () => {
 
   useEffect(() => {
     if (isConnected && address) {
-      loadPurchasedListings();
+      loadPurchases();
     } else {
-      setItems([]);
+      setTransactions([]);
     }
-  }, [isConnected, address, nextListingIdData]);
+  }, [isConnected, address]);
 
   const handleDisputeSuccess = () => {
     setDisputeTarget(null);
     showSuccess('⚠️ Đã mở tranh chấp thành công! Validator sẽ xem xét.');
-    refetchNextId();
-    loadPurchasedListings();
+    loadPurchases();
+  };
+
+  const handleOpenDispute = (listingId: number) => {
+    setDisputeTarget({ listingId: BigInt(listingId) });
   };
 
   if (!isConnected) {
@@ -315,7 +215,7 @@ export const MyPurchasesTab = () => {
     <div>
       {disputeTarget !== null && (
         <OpenDisputeModal
-          listingId={disputeTarget}
+          listingId={disputeTarget.listingId}
           onClose={() => setDisputeTarget(null)}
           onSuccess={handleDisputeSuccess}
         />
@@ -339,20 +239,20 @@ export const MyPurchasesTab = () => {
         </div>
       )}
 
-      {!loading && items.length === 0 && (
+      {!loading && transactions.length === 0 && (
         <div className="text-center py-20 text-gray-500">
           <div className="text-5xl mb-4">📭</div>
-          <p>Bạn chưa mua token từ listing nào</p>
+          <p>Bạn chưa mua token nào</p>
         </div>
       )}
 
-      {!loading && items.length > 0 && (
+      {!loading && transactions.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {items.map((item) => (
-            <PurchasedListingCard
-              key={item.listing.listingId.toString()}
-              item={item}
-              onOpenDispute={(id) => setDisputeTarget(id)}
+          {transactions.map((tx) => (
+            <PurchaseTxCard
+              key={tx.txHash}
+              tx={tx}
+              onOpenDispute={handleOpenDispute}
             />
           ))}
         </div>
