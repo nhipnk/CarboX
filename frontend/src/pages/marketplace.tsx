@@ -8,11 +8,13 @@ import { useBuyCredits } from '../lib/hook';
 import { marketplaceContract } from '../wagmi';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { MyPurchasesTab } from '../components/my-purchases-tab';
+
 const Marketplace: NextPage = () => {
   const { address, isConnected } = useAccount();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState<'all' | 'active' | 'pending' | 'mine'>('all');
   const [buyModal, setBuyModal] = useState<Project | null>(null);
   const [buyAmount, setBuyAmount] = useState(1);
   const [txStatus, setTxStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
@@ -119,10 +121,11 @@ const Marketplace: NextPage = () => {
             { key: 'all', label: `Tất cả (${projects.length})` },
             { key: 'active', label: `🟢 Đang mở (${approvedCount})` },
             { key: 'pending', label: `⏳ Chờ duyệt (${pendingCount})` },
+            { key: 'mine', label: '🧾 Giao dịch của tôi' },
           ].map((f) => (
             <button
               key={f.key}
-              onClick={() => setFilter(f.key)}
+              onClick={() => setFilter(f.key as any)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 filter === f.key
                   ? 'bg-green-500 text-black'
@@ -134,129 +137,136 @@ const Marketplace: NextPage = () => {
           ))}
         </div>
 
-        {/* Loading */}
-        {loading && (
-          <div className="flex items-center justify-center py-20">
-            <div className="w-10 h-10 rounded-full border-2 border-green-500 border-t-transparent animate-spin" />
-          </div>
-        )}
+        {/* Tab Giao dịch của tôi */}
+        {filter === 'mine' && <MyPurchasesTab />}
 
-        {/* Empty */}
-        {!loading && filtered.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-gray-500 text-lg">Chưa có dự án nào</p>
-          </div>
-        )}
+        {filter !== 'mine' && (
+          <>
+            {/* Loading */}
+            {loading && (
+              <div className="flex items-center justify-center py-20">
+                <div className="w-10 h-10 rounded-full border-2 border-green-500 border-t-transparent animate-spin" />
+              </div>
+            )}
 
-        {/* Grid dự án */}
-        {!loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((project) => {
-              const isSoldOut =
-                project.status?.toLowerCase() !== 'approved' ||
-                !project.activeListingId ||
-                project.listedTokens === 0;
-              return (
-                <div
-                  key={project.onChainProjectId ?? project._id}
-                  className="bg-white/3 border border-white/10 rounded-2xl overflow-hidden hover:border-green-500/40 transition-all duration-300 flex flex-col"
-                >
-                  <div className="h-48 bg-gradient-to-br from-green-900/40 to-black flex items-center justify-center relative">
-                    <span className="text-6xl">🌿</span>
-                    {isSoldOut && (
-                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                        <span className="text-white font-bold text-lg border border-white/30 px-4 py-2 rounded-full">
-                          {project.status?.toLowerCase() === 'pending'
-                            ? '⏳ Chờ duyệt'
-                            : !project.activeListingId || project.listedTokens === 0
-                            ? 'Không khả dụng'
-                            : 'Đang bán'}
-                        </span>
+            {/* Empty */}
+            {!loading && filtered.length === 0 && (
+              <div className="text-center py-20">
+                <p className="text-gray-500 text-lg">Chưa có dự án nào</p>
+              </div>
+            )}
+
+            {/* Grid dự án */}
+            {!loading && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filtered.map((project) => {
+                  const isSoldOut =
+                    project.status?.toLowerCase() !== 'approved' ||
+                    !project.activeListingId ||
+                    project.listedTokens === 0;
+                  return (
+                    <div
+                      key={project.onChainProjectId ?? project._id}
+                      className="bg-white/3 border border-white/10 rounded-2xl overflow-hidden hover:border-green-500/40 transition-all duration-300 flex flex-col"
+                    >
+                      <div className="h-48 bg-gradient-to-br from-green-900/40 to-black flex items-center justify-center relative">
+                        <span className="text-6xl">🌿</span>
+                        {isSoldOut && (
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                            <span className="text-white font-bold text-lg border border-white/30 px-4 py-2 rounded-full">
+                              {project.status?.toLowerCase() === 'pending'
+                                ? '⏳ Chờ duyệt'
+                                : !project.activeListingId || project.listedTokens === 0
+                                ? 'Không khả dụng'
+                                : 'Đang bán'}
+                            </span>
+                          </div>
+                        )}
+                        <div className="absolute top-3 right-3 bg-green-500/20 border border-green-500/40 rounded-full px-3 py-1">
+                          <span className="text-green-400 text-xs font-semibold">
+                            {project.status?.toLowerCase() === 'approved'
+                            ? project.activeListingId && project.listedTokens && project.listedTokens > 0
+                              ? '✅ Đang bán'
+                              : '✅ Đã duyệt'
+                            : '⏳ Pending'}
+                          </span>
+                        </div>
                       </div>
-                    )}
-                    <div className="absolute top-3 right-3 bg-green-500/20 border border-green-500/40 rounded-full px-3 py-1">
-                      <span className="text-green-400 text-xs font-semibold">
-                        {project.status?.toLowerCase() === 'approved'
-                        ? project.activeListingId && project.listedTokens && project.listedTokens > 0
-                          ? '✅ Đang bán'
-                          : '✅ Đã duyệt'
-                        : '⏳ Pending'}
-                      </span>
-                    </div>
-                  </div>
 
-                  <div className="p-6 flex flex-col flex-1">
-                    <h3 className="text-white font-bold text-lg mb-1">{project.projectName}</h3>
-                    <p className="text-gray-500 text-sm mb-3">
-                      📍 {project.ownerWallet?.slice(0, 6)}...{project.ownerWallet?.slice(-4)}
-                    </p>
-
-                    <div className="mb-4">
-                      <div className="flex justify-between text-xs text-gray-400 mb-2">
-                        <span>CO₂ đề xuất</span>
-                        <span>{project.totalCarbon?.toLocaleString()} kg</span>
-                      </div>
-                      {project.approvedCO2Kg && (
-                        <div className="flex justify-between text-xs text-gray-400">
-                          <span>CO₂ đã duyệt</span>
-                          <span className="text-green-400">{project.approvedCO2Kg?.toLocaleString()} kg</span>
-                        </div>
-                      )}
-                      {project.listedTokens !== undefined && (
-                        <div className="flex justify-between text-xs text-gray-400 mt-2">
-                          <span>Token đang bán</span>
-                          <span className="text-white">{project.listedTokens.toLocaleString()} token</span>
-                        </div>
-                      )}
-                      {project.soldTokens !== undefined && (
-                        <div className="flex justify-between text-xs text-gray-400 mt-2">
-                          <span>Token đã bán</span>
-                          <span className="text-white">{project.soldTokens.toLocaleString()} token</span>
-                        </div>
-                      )}
-                      {project.pricePerCredit && (
-                        <div className="flex justify-between text-xs text-gray-400 mt-2">
-                          <span>Giá listing</span>
-                          <span className="text-green-400">{project.pricePerCredit} ETH</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between mt-auto">
-                      <div>
-                        <p className="text-gray-400 text-xs">Giá / token</p>
-                        <p className="text-green-400 font-bold text-xl">
-                          {project.pricePerCredit || '0.001'} ETH
+                      <div className="p-6 flex flex-col flex-1">
+                        <h3 className="text-white font-bold text-lg mb-1">{project.projectName}</h3>
+                        <p className="text-gray-500 text-sm mb-3">
+                          📍 {project.ownerWallet?.slice(0, 6)}...{project.ownerWallet?.slice(-4)}
                         </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => {
-                            const cid = project.ipfsHash?.replace('ipfs://', '') || project.ipfsHash;
-                            window.open(`https://gateway.pinata.cloud/ipfs/${cid}`, '_blank');
-                          }}
-                          className="border border-white/20 hover:border-white/40 text-gray-400 hover:text-white px-3 py-2 rounded-lg text-sm transition-all"
-                        >
-                          📄 IPFS
-                        </button>
-                        <button
-                          disabled={isSoldOut || !isConnected || !project.activeListingId || project.listedTokens === 0}
-                          onClick={() => { setBuyModal(project); setTxStatus('idle'); setBuyAmount(1); }}
-                          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                            isSoldOut || !isConnected
-                              ? 'bg-white/10 text-gray-500 cursor-not-allowed'
-                              : 'bg-green-500 hover:bg-green-400 text-black'
-                          }`}
-                        >
-                          {!isConnected ? 'Kết nối ví' : isSoldOut ? 'N/A' : 'Mua Token'}
-                        </button>
+
+                        <div className="mb-4">
+                          <div className="flex justify-between text-xs text-gray-400 mb-2">
+                            <span>CO₂ đề xuất</span>
+                            <span>{project.totalCarbon?.toLocaleString()} kg</span>
+                          </div>
+                          {project.approvedCO2Kg && (
+                            <div className="flex justify-between text-xs text-gray-400">
+                              <span>CO₂ đã duyệt</span>
+                              <span className="text-green-400">{project.approvedCO2Kg?.toLocaleString()} kg</span>
+                            </div>
+                          )}
+                          {project.listedTokens !== undefined && (
+                            <div className="flex justify-between text-xs text-gray-400 mt-2">
+                              <span>Token đang bán</span>
+                              <span className="text-white">{project.listedTokens.toLocaleString()} token</span>
+                            </div>
+                          )}
+                          {project.soldTokens !== undefined && (
+                            <div className="flex justify-between text-xs text-gray-400 mt-2">
+                              <span>Token đã bán</span>
+                              <span className="text-white">{project.soldTokens.toLocaleString()} token</span>
+                            </div>
+                          )}
+                          {project.pricePerCredit && (
+                            <div className="flex justify-between text-xs text-gray-400 mt-2">
+                              <span>Giá listing</span>
+                              <span className="text-green-400">{project.pricePerCredit} ETH</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between mt-auto">
+                          <div>
+                            <p className="text-gray-400 text-xs">Giá / token</p>
+                            <p className="text-green-400 font-bold text-xl">
+                              {project.pricePerCredit || '0.001'} ETH
+                            </p>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                const cid = project.ipfsHash?.replace('ipfs://', '') || project.ipfsHash;
+                                window.open(`https://gateway.pinata.cloud/ipfs/${cid}`, '_blank');
+                              }}
+                              className="border border-white/20 hover:border-white/40 text-gray-400 hover:text-white px-3 py-2 rounded-lg text-sm transition-all"
+                            >
+                              📄 IPFS
+                            </button>
+                            <button
+                              disabled={isSoldOut || !isConnected || !project.activeListingId || project.listedTokens === 0}
+                              onClick={() => { setBuyModal(project); setTxStatus('idle'); setBuyAmount(1); }}
+                              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                                isSoldOut || !isConnected
+                                  ? 'bg-white/10 text-gray-500 cursor-not-allowed'
+                                  : 'bg-green-500 hover:bg-green-400 text-black'
+                              }`}
+                            >
+                              {!isConnected ? 'Kết nối ví' : isSoldOut ? 'N/A' : 'Mua Token'}
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
         )}
       </div>
 
