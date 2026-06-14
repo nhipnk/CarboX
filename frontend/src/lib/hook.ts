@@ -28,6 +28,7 @@ export const GAS_LIMITS = {
   addValidator: 150000n,
   openDispute: 200000n,     
   resolveDispute: 250000n,   
+  withdrawProceeds: 100000n,
 } as const;
 
 type ReceiptWaitOptions = {
@@ -341,4 +342,41 @@ export function useResolveDispute() {
   };
 
   return { resolveDispute, isPending };
+}
+// ── Đọc số dư đang chờ rút của seller ──────────────────────────
+export function useSellerBalance() {
+  const { address } = useAccount();
+  return useReadContract({
+    address: CONTRACT_ADDRESSES.CARBON_MARKETPLACE,
+    abi: CARBON_MARKETPLACE_ABI,
+    functionName: "sellerBalances",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address },
+  });
+}
+
+// ── Rút tiền bán hàng về ví ─────────────────────────────────────
+export function useWithdrawProceeds() {
+  const { writeContractAsync, isPending } = useWriteContract();
+  const publicClient = usePublicClient({ chainId: NETWORK.CHAIN_ID });
+
+  const withdraw = async () => {
+    const hash = await writeContractAsync({
+      address: CONTRACT_ADDRESSES.CARBON_MARKETPLACE,
+      abi: CARBON_MARKETPLACE_ABI,
+      functionName: "withdrawProceeds",
+      args: [],
+      gas: GAS_LIMITS.withdrawProceeds,
+    });
+
+    if (publicClient && hash) {
+      const receipt = await waitForReceipt(publicClient, hash);
+      if (receipt?.status === 'reverted') {
+        throw new Error('Giao dịch bị revert trên blockchain');
+      }
+    }
+    return hash;
+  };
+
+  return { withdraw, isPending };
 }
