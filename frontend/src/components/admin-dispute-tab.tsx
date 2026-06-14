@@ -157,29 +157,28 @@ export const AdminDisputeTab = () => {
 
   const loadOpenDisputes = async () => {
     if (!publicClient || nextListingIdData === undefined) return;
-
+  
     setLoading(true);
     setError('');
+  
     try {
       const nextId = Number(nextListingIdData);
-      console.log('🔍 [AdminDisputeTab] NEXT LISTING ID:', nextId);
-      
-      if (nextId <= 1) {
-        console.warn('⚠️ [AdminDisputeTab] Không có listing nào để check (nextId <= 1)');
-        setItems([]);
-        setLoading(false);
-        return;
-      }
-
-      console.log('🔍 [AdminDisputeTab] Sẽ loop từ id=1 đến id=' + (nextId - 1));
-      
+  
+      console.log('====================================');
+      console.log('NEXT LISTING ID:', nextId);
+      console.log('====================================');
+  
       const results: OpenDisputeItem[] = [];
-
-      for (let id = 1; id <= nextId - 1; id++) {
+  
+      for (let id = 1; id <= nextId; id++) {
         const listingId = BigInt(id);
-
+  
+        console.log('------------------------------------');
+        console.log('CHECKING LISTING:', id);
+        console.log('------------------------------------');
+  
         let disputeRaw: readonly [bigint, string, string, bigint, boolean];
-
+  
         try {
           disputeRaw = (await publicClient.readContract({
             address: CONTRACT_ADDRESSES.CARBON_MARKETPLACE,
@@ -187,18 +186,19 @@ export const AdminDisputeTab = () => {
             functionName: 'disputes',
             args: [listingId],
           })) as readonly [bigint, string, string, bigint, boolean];
-        
-          console.log(`📋 [AdminDisputeTab] Listing ${id} - dispute.active = ${disputeRaw[4]}`);
-        
-        } catch (error) {
-          console.error(
-            `❌ [AdminDisputeTab] Failed to read dispute for listing ${id}:`,
-            error
-          );
-        
+  
+          console.log('DISPUTE RAW:', {
+            listingId: disputeRaw[0]?.toString(),
+            initiator: disputeRaw[1],
+            reason: disputeRaw[2],
+            votes: disputeRaw[3]?.toString(),
+            active: disputeRaw[4],
+          });
+        } catch (e) {
+          console.error('READ DISPUTE ERROR:', id, e);
           continue;
         }
-
+  
         const dispute: DisputeInfo = {
           listingId: disputeRaw[0],
           initiator: disputeRaw[1],
@@ -206,21 +206,44 @@ export const AdminDisputeTab = () => {
           votes: disputeRaw[3],
           active: disputeRaw[4],
         };
-
+  
+        console.log('PARSED DISPUTE:', {
+          listingId: dispute.listingId.toString(),
+          active: dispute.active,
+          reason: dispute.reason,
+        });
+  
         if (!dispute.active) {
-          console.log(`⏭️ [AdminDisputeTab] Skipping listing ${id}: dispute not active`);
+          console.log('SKIP - DISPUTE NOT ACTIVE');
           continue;
         }
-
-        console.log(`✅ [AdminDisputeTab] Found active dispute for listing ${id}:`, dispute);
-
-        const listingRaw = (await publicClient.readContract({
-          address: CONTRACT_ADDRESSES.CARBON_MARKETPLACE,
-          abi: CARBON_MARKETPLACE_ABI,
-          functionName: 'listings',
-          args: [listingId],
-        })) as readonly [bigint, bigint, string, bigint, bigint, boolean, bigint];
-
+  
+        let listingRaw:
+          | readonly [bigint, bigint, string, bigint, bigint, boolean, bigint]
+          | undefined;
+  
+        try {
+          listingRaw = (await publicClient.readContract({
+            address: CONTRACT_ADDRESSES.CARBON_MARKETPLACE,
+            abi: CARBON_MARKETPLACE_ABI,
+            functionName: 'listings',
+            args: [listingId],
+          })) as readonly [
+            bigint,
+            bigint,
+            string,
+            bigint,
+            bigint,
+            boolean,
+            bigint
+          ];
+  
+          console.log('LISTING RAW:', listingRaw);
+        } catch (e) {
+          console.error('READ LISTING ERROR:', id, e);
+          continue;
+        }
+  
         const listing: ListingInfo = {
           listingId: listingRaw[0],
           projectId: listingRaw[1],
@@ -230,42 +253,26 @@ export const AdminDisputeTab = () => {
           active: listingRaw[5],
           createdAt: listingRaw[6],
         };
-
-        results.push({ listing, dispute });
+  
+        results.push({
+          listing,
+          dispute,
+        });
+  
+        console.log('ADDED TO RESULTS:', id);
       }
-
-      console.log(`🎯 [AdminDisputeTab] Total active disputes found: ${results.length}`);
+  
+      console.log('====================================');
+      console.log('FINAL RESULTS:', results);
+      console.log('RESULT COUNT:', results.length);
+      console.log('====================================');
+  
       setItems(results);
     } catch (e: any) {
-      console.error('[AdminDisputeTab] Error loading disputes:', e);
+      console.error('LOAD OPEN DISPUTES ERROR:', e);
       setError(e?.message || 'Lỗi khi tải dữ liệu tranh chấp');
     } finally {
       setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadOpenDisputes();
-  }, [nextListingIdData]);
-
-  const handleResolve = async (listingId: bigint, penalizeSeller: boolean) => {
-    setError('');
-    try {
-      await resolveDispute(listingId, penalizeSeller);
-      showSuccess(
-        penalizeSeller
-          ? '⚖️ Đã vote phạt seller thành công!'
-          : '✅ Đã vote không phạt seller thành công!'
-      );
-      refetchNextId();
-      loadOpenDisputes();
-    } catch (e: any) {
-      const message = String(e?.message || e || '');
-      if (message.toLowerCase().includes('da bo phieu') || message.toLowerCase().includes('already voted')) {
-        setError('Bạn đã bỏ phiếu cho tranh chấp này rồi.');
-      } else {
-        setError(message || 'Lỗi khi xử lý tranh chấp');
-      }
     }
   };
 
