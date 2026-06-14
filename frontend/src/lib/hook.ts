@@ -19,16 +19,16 @@ const RETIRE_RECEIPT_OPTIONS = {
 
 // These are gas limits, not fixed gas fees. MetaMask still chooses gas pricing.
 export const GAS_LIMITS = {
-  setApprovalForAll: 120000n,
-  submitProject: 300000n,
-  createListing: 350000n,
-  buyCredits: 350000n,
+  setApprovalForAll: 400000n,
+  submitProject: 400000n,
+  createListing: 400000n,
+  buyCredits: 400000n,
   retireCredits: 700000n,
-  voteOnProject: 250000n,
-  addValidator: 150000n,
-  openDispute: 200000n,     
-  resolveDispute: 250000n,   
-  withdrawProceeds: 100000n,
+  voteOnProject: 400000n,
+  addValidator: 400000n,
+  openDispute: 400000n,     
+  resolveDispute: 400000n,   
+  withdrawProceeds: 400000n,
 } as const;
 
 type ReceiptWaitOptions = {
