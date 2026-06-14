@@ -49,7 +49,7 @@ const listenToBlockchain = () => {
                 // Update thêm onChainProjectId, giữ projectName mà frontend đã nhập
                 await Project.findByIdAndUpdate(existing._id, {
                     onChainProjectId: Number(projectId),
-                    totalCarbon: Number(proposedCO2Kg) / 10, // sync lại nếu khác
+                    totalCarbon: Number(proposedCO2Kg), 
                 });
                 console.log(`✅ Dự án "${existing.projectName}" (#${projectId}) được confirm trên blockchain`);
                 return;
@@ -62,7 +62,7 @@ const listenToBlockchain = () => {
                 projectName: `Project #${projectId}`,
                 ownerWallet: owner.toLowerCase(),
                 ipfsHash: projectURI,
-                totalCarbon: Number(proposedCO2Kg) / 10,
+                totalCarbon: Number(proposedCO2Kg),
                 status: 'Pending',
             });
             console.log(`📋 Dự án #${projectId} được tạo từ blockchain event (fallback)`);
