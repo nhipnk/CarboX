@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const transactionSchema = new mongoose.Schema({
   txHash: { 
     type: String, 
@@ -30,6 +29,10 @@ const transactionSchema = new mongoose.Schema({
     type: String, 
     default: null // Mã băm từ Pinata (nếu có tài liệu đính kèm)
   },
+  listingId: {
+    type: Number,
+    default: null // Chỉ có giá trị với giao dịch TRANSFER (mua từ marketplace)
+  },
   blockNumber: { 
     type: Number, 
     required: true 
@@ -39,5 +42,4 @@ const transactionSchema = new mongoose.Schema({
     required: true 
   }
 });
-
 module.exports = mongoose.model('Transaction', transactionSchema);
