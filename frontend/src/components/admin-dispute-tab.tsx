@@ -275,7 +275,40 @@ export const AdminDisputeTab = () => {
       setLoading(false);
     }
   };
-
+  useEffect(() => {
+    loadOpenDisputes();
+  }, [nextListingIdData]);
+  
+  const handleResolve = async (
+    listingId: bigint,
+    penalizeSeller: boolean
+  ) => {
+    setError('');
+  
+    try {
+      await resolveDispute(listingId, penalizeSeller);
+  
+      showSuccess(
+        penalizeSeller
+          ? '⚖️ Đã vote phạt seller thành công!'
+          : '✅ Đã vote không phạt seller thành công!'
+      );
+  
+      await refetchNextId();
+      await loadOpenDisputes();
+    } catch (e: any) {
+      const message = String(e?.message || e || '');
+  
+      if (
+        message.toLowerCase().includes('da bo phieu') ||
+        message.toLowerCase().includes('already voted')
+      ) {
+        setError('Bạn đã bỏ phiếu cho tranh chấp này rồi.');
+      } else {
+        setError(message || 'Lỗi khi xử lý tranh chấp');
+      }
+    }
+  };
   return (
     <div>
       {successMsg && (
