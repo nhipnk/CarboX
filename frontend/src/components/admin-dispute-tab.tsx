@@ -162,12 +162,14 @@ export const AdminDisputeTab = () => {
     setError('');
     try {
       const nextId = Number(nextListingIdData);
+      console.log('NEXT LISTING ID:', nextId);
       const results: OpenDisputeItem[] = [];
 
       for (let id = 1; id < nextId; id++) {
         const listingId = BigInt(id);
 
         let disputeRaw: readonly [bigint, string, string, bigint, boolean];
+
         try {
           disputeRaw = (await publicClient.readContract({
             address: CONTRACT_ADDRESSES.CARBON_MARKETPLACE,
@@ -175,7 +177,21 @@ export const AdminDisputeTab = () => {
             functionName: 'disputes',
             args: [listingId],
           })) as readonly [bigint, string, string, bigint, boolean];
-        } catch {
+        
+          console.log('========================');
+          console.log('LISTING ID:', id);
+          console.log('DISPUTE RAW:', disputeRaw);
+          console.log('========================');
+        
+        } catch (error) {
+          console.error(
+            'READ DISPUTE ERROR',
+            {
+              listingId: id,
+              error,
+            }
+          );
+        
           continue;
         }
 
