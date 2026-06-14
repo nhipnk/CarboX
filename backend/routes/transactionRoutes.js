@@ -74,7 +74,7 @@ router.post('/transfer', async (req, res) => {
 // ==========================================
 router.get('/history/:address', async (req, res) => {
     try {
-        const { address } = req.params;
+        const address = req.params.address.toLowerCase();
         const cacheKey = `tx_history_${address}`; 
 
         const cachedData = await redisClient.get(cacheKey);
