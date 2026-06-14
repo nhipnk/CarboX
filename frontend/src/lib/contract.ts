@@ -251,6 +251,48 @@ export const CARBON_MARKETPLACE_ABI = [
     name: "CreditsRetired", type: "event",
   },
   { stateMutability: "payable", type: "receive" },
+
+  // disputes(listingId) → struct Dispute
+  {
+    inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    name: "disputes",
+    outputs: [
+      { internalType: "uint256", name: "listingId", type: "uint256" },
+      { internalType: "address", name: "initiator", type: "address" },
+      { internalType: "string", name: "reason", type: "string" },
+      { internalType: "uint256", name: "votes", type: "uint256" },
+      { internalType: "bool", name: "active", type: "bool" },
+    ],
+    stateMutability: "view", type: "function",
+  },
+  // hasVotedOnDispute(listingId, voter)
+  {
+    inputs: [
+      { internalType: "uint256", name: "", type: "uint256" },
+      { internalType: "address", name: "", type: "address" },
+    ],
+    name: "hasVotedOnDispute",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view", type: "function",
+  },
+  // Events liên quan dispute (nếu contract có emit, optional nhưng nên có)
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "uint256", name: "listingId", type: "uint256" },
+      { indexed: true, internalType: "address", name: "initiator", type: "address" },
+      { indexed: false, internalType: "string", name: "reason", type: "string" },
+    ],
+    name: "DisputeOpened", type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "uint256", name: "listingId", type: "uint256" },
+      { indexed: false, internalType: "bool", name: "penalizeSeller", type: "bool" },
+    ],
+    name: "DisputeResolved", type: "event",
+  },
 ] as const;
 
 // ── ABI: CarbonCredit1155 ─────────────────────────────────────
