@@ -15,6 +15,7 @@ import {
   type Stats,
 } from '../lib/api';
 import { GAS_LIMITS, useSubmitProject, waitForReceipt } from '../lib/hook';
+import { WithdrawProceedsCard } from '../components/withdraw-proceeds-card';
 
 // ── Sell Form Component ───────────────────────────────────────
 const SellForm = ({
@@ -200,7 +201,7 @@ const SellForm = ({
           <p className="text-red-400 text-sm">❌ {error}</p>
         </div>
       )}
-
+  
       <div className="bg-white/3 border border-white/10 rounded-2xl p-8 space-y-6">
         <h2 className="text-xl font-bold text-white">Tạo listing bán token</h2>
 
@@ -306,6 +307,7 @@ const SellForm = ({
           Token sẽ được chuyển vào contract marketplace cho đến khi có người mua
         </p>
       </div>
+      <WithdrawProceedsCard />
     </div>
   );
 };
