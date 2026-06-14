@@ -328,12 +328,15 @@ const PendingCard = ({
 }) => {
   const { address } = useAccount();
 
-  const { data: approvalVotesData } = useReadContract({
+  const { data: approvalVotesData, refetch: refetchVotes } = useReadContract({
     address: CONTRACT_ADDRESSES.CARBON_MARKETPLACE,
     abi: MARKETPLACE_READ_ABI,
     functionName: 'listingApprovalVotes',
     args: p.onChainProjectId !== null ? [BigInt(p.onChainProjectId)] : undefined,
-    query: { enabled: p.onChainProjectId !== null },
+    query: { 
+      enabled: p.onChainProjectId !== null,
+      refetchInterval: 5000, // tự động refresh mỗi 5 giây
+    },
   });
 
   const { data: totalValidatorsData } = useReadContract({
