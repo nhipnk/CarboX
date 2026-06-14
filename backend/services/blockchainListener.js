@@ -46,23 +46,18 @@ const listenToBlockchain = () => {
             });
 
             if (existing) {
-                // Update thêm onChainProjectId, giữ projectName mà frontend đã nhập
                 await Project.findByIdAndUpdate(existing._id, {
-                    onChainProjectId: Number(projectId),
-                    totalCarbon: Number(proposedCO2Kg), 
+                    onChainProjectId: Number(projectId), 
                 });
                 console.log(`✅ Dự án "${existing.projectName}" (#${projectId}) được confirm trên blockchain`);
                 return;
             }
 
-            // Fallback: nếu frontend chưa tạo, listener sẽ tạo (nhưng thường không xảy ra)
-            // Vì frontend tạo project TRƯỚC submitProject
             const newProject = await Project.create({
                 onChainProjectId: Number(projectId),
                 projectName: `Project #${projectId}`,
                 ownerWallet: owner.toLowerCase(),
                 ipfsHash: projectURI,
-                totalCarbon: Number(proposedCO2Kg),
                 status: 'Pending',
             });
             console.log(`📋 Dự án #${projectId} được tạo từ blockchain event (fallback)`);
