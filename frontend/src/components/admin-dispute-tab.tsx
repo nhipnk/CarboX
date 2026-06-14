@@ -165,7 +165,7 @@ export const AdminDisputeTab = () => {
       console.log('NEXT LISTING ID:', nextId);
       const results: OpenDisputeItem[] = [];
 
-      for (let id = 1; id <= nextId; id++) {
+      for (let id = 1; id <= nextId - 1; id++) {
         const listingId = BigInt(id);
 
         let disputeRaw: readonly [bigint, string, string, bigint, boolean];
