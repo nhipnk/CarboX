@@ -38,7 +38,6 @@ const listenToBlockchain = () => {
     // ============================================================
     contract.on('ProjectSubmitted', async (projectId, owner, projectURI, proposedCO2Kg, event) => {
         try {
-            // FIX: Chỉ update existing project (frontend đã tạo sẵn)
             // Unique key: (ownerWallet, ipfsHash) — không create mới để tránh trùng lặp
             const existing = await Project.findOne({
                 ownerWallet: owner.toLowerCase(),
@@ -136,6 +135,7 @@ const listenToBlockchain = () => {
                 toAddress: process.env.MARKETPLACE_CONTRACT_ADDRESS.toLowerCase(),
                 amount: Number(amount),
                 transactionType: 'TRANSFER',
+                listingId: Number(listingId),
                 blockNumber: event.log?.blockNumber || 0,
                 timestamp: new Date(),
             });
