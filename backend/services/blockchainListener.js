@@ -46,6 +46,7 @@ const listenToBlockchain = () => {
             });
 
             if (existing) {
+                console.log(`📊 proposedCO2Kg từ blockchain: ${proposedCO2Kg} (type: ${typeof proposedCO2Kg})`);
                 await Project.findByIdAndUpdate(existing._id, {
                     onChainProjectId: Number(projectId), 
                 });
