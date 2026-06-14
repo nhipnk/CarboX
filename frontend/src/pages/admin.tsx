@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAccount, useReadContract } from 'wagmi';
 import { useVoteProject, useAddValidator } from '../lib/hook';
 import { CONTRACT_ADDRESSES, CARBON_MARKETPLACE_ABI } from '../lib/contract';
-import { AdminDisputeTab } from './admin-dispute-tab';
+import { AdminDisputeTab } from '../components/admin dispute tab';
 
 const ADMIN_KEY = 'CarbonX_Admin_Super_Secret_2026';
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
