@@ -476,7 +476,7 @@ const Dashboard: NextPage = () => {
                       <div className="grid grid-cols-3 gap-4 text-sm">
                         <div>
                           <p className="text-gray-500 text-xs">CO₂ đề xuất</p>
-                          <p className="text-white font-semibold">{p.totalCarbon?.toLocaleString()} kg</p>
+                          <p className="text-white font-semibold">{p.approvedCO2Kg ? `${p.approvedCO2Kg.toLocaleString()} kg</p>
                         </div>
                         <div>
                           <p className="text-gray-500 text-xs">CO₂ đã duyệt</p>
