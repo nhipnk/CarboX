@@ -70,6 +70,7 @@ export interface Transaction {
   amount: number;
   blockNumber: number;
   timestamp: string;
+  listingId?: number;
 }
 
 export interface LeaderboardEntry {
