@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAccount, useReadContract } from 'wagmi';
 import { useVoteProject, useAddValidator } from '../lib/hook';
 import { CONTRACT_ADDRESSES, CARBON_MARKETPLACE_ABI } from '../lib/contract';
+import { AdminDisputeTab } from './admin-dispute-tab';
 
 const ADMIN_KEY = 'CarbonX_Admin_Super_Secret_2026';
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -433,7 +434,7 @@ const AdminPage: NextPage = () => {
   const [authed, setAuthed] = useState(false);
   const [inputKey, setInputKey] = useState('');
   const [keyError, setKeyError] = useState('');
-  const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'rejected'>('pending');
+  const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'rejected' | 'dispute'>('pending');
   const [pendingProjects, setPendingProjects] = useState<Project[]>([]);
   const [approvedProjects, setApprovedProjects] = useState<Project[]>([]);
   const [rejectedProjects, setRejectedProjects] = useState<Project[]>([]);
@@ -690,6 +691,7 @@ const AdminPage: NextPage = () => {
             { key: 'pending', label: '⏳ Chờ duyệt', count: pendingProjects.length, active: 'bg-yellow-500 text-black' },
             { key: 'approved', label: '✅ Đã duyệt', count: approvedProjects.length, active: 'bg-green-500 text-black' },
             { key: 'rejected', label: '❌ Đã từ chối', count: rejectedProjects.length, active: 'bg-red-500 text-white' },
+            { key: 'dispute', label: '⚠️ Tranh chấp', count: 0, active: 'bg-red-500 text-white' },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -700,7 +702,7 @@ const AdminPage: NextPage = () => {
                   : 'border border-white/10 text-gray-400 hover:text-white'
               }`}
             >
-              {tab.label} ({tab.count})
+              {tab.key === 'dispute' ? tab.label : `${tab.label} (${tab.count})`}
             </button>
           ))}
         </div>
@@ -852,6 +854,9 @@ const AdminPage: NextPage = () => {
             )}
           </div>
         )}
+
+        {/* Tab Dispute */}
+        {activeTab === 'dispute' && <AdminDisputeTab />}
 
       </div>
     </>
