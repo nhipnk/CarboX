@@ -23,7 +23,7 @@ const Retire: NextPage = () => {
 
   const { retire, isPending: isRetiring } = useRetireCredits();
   const { approve, isPending: isApproving } = useApproveMarketplace();
-  const { data: isApproved } = useIsApproved();
+  const { data: isApproved, refetch: refetchIsApproved } = useIsApproved();
   const {
     data: tokenBalance,
     refetch: refetchTokenBalance,
@@ -100,6 +100,7 @@ const Retire: NextPage = () => {
       if (!isApproved) {
         setStep('approving');
         await approve();
+        await refetchIsApproved();
       }
 
       setStep('burning');
@@ -490,6 +491,7 @@ const Retire: NextPage = () => {
                           setError('');
                           try {
                             await approve();
+                            await refetchIsApproved();
                           } catch (e) {
                             setError(formatErrorMessage(e));
                           }
