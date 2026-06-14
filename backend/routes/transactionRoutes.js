@@ -7,9 +7,6 @@ const User = require('../Models/User');
 const Transaction = require('../Models/Transaction'); 
 const redisClient = require('../config/redis'); 
 
-// ==========================================
-// ==========================================
-/*
 router.post('/transfer', async (req, res) => {
     const { senderId, receiverId, amount } = req.body;
     const numericAmount = Number(amount);
@@ -66,7 +63,6 @@ router.post('/transfer', async (req, res) => {
         res.status(400).json({ error: 'Giao dịch thất bại, đã hoàn tác!', details: error.message });
     }
 });
-*/
 
 // ==========================================
 // 2. API Lấy Lịch sử Giao dịch (Tối ưu Redis Caching)
