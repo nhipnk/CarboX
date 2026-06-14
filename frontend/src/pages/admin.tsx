@@ -386,12 +386,7 @@ const PendingCard = ({
           {p.onChainProjectId !== null ? `#${p.onChainProjectId}` : 'Chưa có'}
         </p>
       </div>
-      <div>
-        <p className="text-gray-500 text-xs">Validator đã vote duyệt</p>
-        <p className="text-white font-semibold">
-          {approvalVotes}{totalValidators !== null ? ` / ${totalValidators}` : ''}
-        </p>
-      </div>
+      
     </div>
     <div className="flex items-center gap-3 flex-wrap">
       <button
@@ -664,7 +659,7 @@ const AdminPage: NextPage = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 gap-4 mb-8">
           <div className="bg-white/3 border border-white/10 rounded-2xl p-6">
             <p className="text-gray-400 text-sm mb-2">Chờ duyệt</p>
             <p className="text-3xl font-black text-yellow-400">{pendingProjects.length}</p>
