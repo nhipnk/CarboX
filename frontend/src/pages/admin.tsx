@@ -448,6 +448,7 @@ const AdminPage: NextPage = () => {
   const [approveTarget, setApproveTarget] = useState<Project | null>(null);
   const [rejectTarget, setRejectTarget] = useState<Project | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
+  const [voteCount, setVoteCount] = useState(0);
 
   const showSuccess = (msg: string) => {
     setSuccessMsg(msg);
@@ -546,6 +547,7 @@ const AdminPage: NextPage = () => {
     try {
       await vote(project.onChainProjectId, true);
       showSuccess('🗳️ Đã vote duyệt thành công!');
+      setVoteCount(c => c + 1);
       loadAll();
     } catch (e: any) {
       const message = String(e?.message || e || '');
@@ -722,7 +724,7 @@ const AdminPage: NextPage = () => {
             ) : (
               pendingProjects.map((p) => (
                 <PendingCard
-                  key={p._id}
+                  key={`${p._id}-${voteCount}`}
                   p={p}
                   onApprove={setApproveTarget}
                   onReject={setRejectTarget}
