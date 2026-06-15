@@ -50,7 +50,7 @@ const Retire: NextPage = () => {
   }, []);
 
   const totalCO2Kg = amount * 10; // 1 token = 10kg CO2
-  const certURI = `Trung hoa carbon tu du an ${selectedProject?.projectName} vao ${new Date().toLocaleDateString('vi-VN')}`;
+  const certURI = `Trung hòa carbon từ dự án ${selectedProject?.projectName} vào ${new Date().toLocaleDateString('vi-VN')}`;
   const etherscanTxUrl = txHash ? `https://sepolia.etherscan.io/tx/${txHash}` : '';
 
   const formatErrorMessage = (error: unknown) => {
@@ -70,7 +70,7 @@ const Retire: NextPage = () => {
       maybeCode === 4001 ||
       /user rejected|user denied|request rejected|rejected the request/i.test(maybeMessage)
     ) {
-      return 'Ban da huy giao dich trong MetaMask.';
+      return 'Bạn đã hủy giao dịch trong MetaMask.';
     }
 
     if (error instanceof Error) return error.message || 'Giao dịch thất bại';
@@ -87,7 +87,7 @@ const Retire: NextPage = () => {
 
   const handleRetire = async () => {
     if (!selectedProject || !isConnected) {
-      setError('Vui long chon du an va ket noi vi');
+      setError('Vui lòng chọn dự án và kết nối ví');
       return;
     }
     setError('');
@@ -200,7 +200,7 @@ const Retire: NextPage = () => {
             {txHash.slice(0, 10)}...{txHash.slice(-8)} - Xem tren Etherscan
           </button>
         ) : (
-          <p className="text-gray-500 text-sm mb-8">Dang cho ban xac nhan giao dich trong MetaMask...</p>
+          <p className="text-gray-500 text-sm mb-8">Đang chờ bạn xác nhận giao dịch trong MetaMask...</p>
         )}
         <div className="w-64 h-2 bg-white/10 rounded-full overflow-hidden">
           <div className="h-full bg-green-500 rounded-full animate-pulse w-3/4" />
@@ -222,7 +222,7 @@ const Retire: NextPage = () => {
             onClick={() => window.open(etherscanTxUrl, '_blank')}
             className="mb-8 text-blue-400 hover:text-blue-300 text-sm font-mono transition-all"
           >
-            {txHash.slice(0, 10)}...{txHash.slice(-8)} - Xem tren Etherscan
+            {txHash.slice(0, 10)}...{txHash.slice(-8)} - Xem trên Etherscan
           </button>
         )}
         <div className="w-64 h-2 bg-white/10 rounded-full overflow-hidden">
@@ -245,7 +245,7 @@ const Retire: NextPage = () => {
             onClick={() => window.open(etherscanTxUrl, '_blank')}
             className="mb-8 text-blue-400 hover:text-blue-300 text-sm font-mono transition-all"
           >
-            {txHash.slice(0, 10)}...{txHash.slice(-8)} - Xem tren Etherscan
+            {txHash.slice(0, 10)}...{txHash.slice(-8)} - Xem trên Etherscan
           </button>
         )}
         <div className="flex flex-wrap justify-center gap-4">
@@ -253,7 +253,7 @@ const Retire: NextPage = () => {
             onClick={() => { setStep('form'); setWarning(''); }}
             className="border border-white/20 text-gray-400 hover:text-white px-6 py-3 rounded-xl transition-all"
           >
-            Quay lai
+            Quay lại
           </button>
           <button
             onClick={() => {
@@ -270,7 +270,7 @@ const Retire: NextPage = () => {
               onClick={() => window.open(etherscanTxUrl, '_blank')}
               className="border border-white/20 text-gray-400 hover:text-white px-6 py-3 rounded-xl transition-all"
             >
-              Xem tren Etherscan
+              Xem trên Etherscan
             </button>
           )}
         </div>
