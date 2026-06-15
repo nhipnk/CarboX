@@ -28,6 +28,13 @@ const features = [
   },
 ];
 
+const formatNumber = (num: number): string => {
+  if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(1) + 'B';
+  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + 'M';
+  if (num >= 1_000) return (num / 1_000).toFixed(1) + 'K';
+  return num.toLocaleString();
+};
+
 const Home: NextPage = () => {
   const [stats, setStats] = useState([
     { value: '—', label: 'Dự án xanh' },
@@ -45,7 +52,7 @@ const Home: NextPage = () => {
         ]);
 
         const approvedProjects = projects.filter((p) => p.status === 'Approved');
-        const totalTokensMinted = approvedProjects.reduce((s, p) => s + (p.approvedCO2Kg ?? 0), 0);
+        const totalTokensMinted = approvedProjects.reduce((s, p) => s + (p.totalCarbon ?? 0), 0);
         const leaderboard = Array.isArray(leaderboardResponse?.leaderboard)
           ? leaderboardResponse.leaderboard
           : [];
@@ -54,8 +61,8 @@ const Home: NextPage = () => {
 
         setStats([
           { value: approvedProjects.length.toString(), label: 'Dự án xanh' },
-          { value: totalTokensMinted.toLocaleString(), label: 'Token đã phát hành' },
-          { value: totalRetired.toLocaleString(), label: 'Tấn CO₂ đã bù đắp' },
+          { value: formatNumber(totalTokensMinted), label: 'Token đã phát hành' },
+          { value: formatNumber(totalRetired), label: 'kg CO₂ đã bù đắp' },
           { value: totalCompanies.toString(), label: 'Doanh nghiệp tham gia' },
         ]);
       } catch (e) {
