@@ -55,6 +55,7 @@ const Footer = () => {
                 { label: 'Sứ mệnh', href: '#' },
                 { label: 'Đội ngũ', href: '#' },
                 { label: 'Đối tác', href: '#' },
+                { label: 'Github', href: 'https://github.com/nhipnk/CarboX', external: true },
               ].map((item) => (
                 <li key={item.label}>
                   <Link
@@ -124,7 +125,6 @@ const Footer = () => {
               {[
                 { label: 'Xem trên Etherscan', href: 'https://sepolia.etherscan.io/address/0xBb1d739d98dAe76DD1E95e4A978Fd1E4b525ABa4', external: true },
                 { label: 'Leaderboard', href: '/leaderboard', external: false },
-                { label: 'Github', href: 'https://github.com/nhipnk/CarboX', external: true },
               ].map((item) => (
                 <li key={item.label}>
                   <button
