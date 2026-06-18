@@ -84,7 +84,7 @@ export const ProjectCard = ({
 
         <div className="mb-4">
           <div className="flex justify-between text-xs text-gray-400 mb-2">
-            <span>CO₂ đề xuất</span>
+            <span>Token đã duyệt</span>
             <span>{project.totalCarbon?.toLocaleString()} kg</span>
           </div>
           {project.approvedCO2Kg && (
