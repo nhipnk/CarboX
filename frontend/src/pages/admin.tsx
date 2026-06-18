@@ -760,7 +760,7 @@ const AdminPage: NextPage = () => {
                   </div>
                   <div className="grid grid-cols-3 gap-4 text-sm mb-5">
                     <div>
-                      <p className="text-gray-500 text-xs">CO₂ đề xuất</p>
+                      <p className="text-gray-500 text-xs">Token đã duyệt</p>
                       <p className="text-white font-semibold">{p.totalCarbon.toLocaleString()} kg</p>
                     </div>
                     <div>
