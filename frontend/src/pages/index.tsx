@@ -92,9 +92,8 @@ const Home: NextPage = () => {
         </div>
 
         {/* Tiêu đề */}
-        <img src="/logo.jpg" alt="CarboX" className="w-8 h-8 rounded-lg object-cover" />
         <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight">
-          arboX
+          <img src="/logo.jpg" alt="CarboX" className="w-8 h-8 rounded-lg object-cover" /> arboX
           <br />
           <span className="text-green-400">Sàn giao dịch tín chỉ Carbon</span>
         </h1>
