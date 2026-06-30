@@ -77,6 +77,7 @@ const Home: NextPage = () => {
     <>
       <Head>
         <title>CarboX — Sàn giao dịch tín chỉ carbon</title>
+        <link rel="icon" href="/logo.jpg" />
       </Head>
 
       {/* Hero */}
