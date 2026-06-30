@@ -10,9 +10,7 @@ const Footer = () => {
           {/* Logo + mô tả */}
           <div className="md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-5">
-              <div className="w-9 h-9 rounded-xl bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/30">
-                <span className="text-black font-black text-sm">C</span>
-              </div>
+              <img src="/logo.jpg" alt="CarboX" className="w-8 h-8 rounded-lg object-cover" />
               <span className="text-white font-bold text-xl">
                 Carbo<span className="text-green-400">X</span>
               </span>
