@@ -19,9 +19,7 @@ const Navbar = () => {
         
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center">
-            <span className="text-black font-black text-sm">C</span>
-          </div>
+          <img src="/logo.png" alt="CarboX" className="w-8 h-8 rounded-lg object-cover" />
           <span className="text-white font-bold text-xl">
             Carbo<span className="text-green-400">X</span>
           </span>
