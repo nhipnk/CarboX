@@ -92,11 +92,13 @@ const Home: NextPage = () => {
         </div>
 
         {/* Tiêu đề */}
-        <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight">
-          <img src="/logo.jpg" alt="CarboX" className="w-8 h-8 rounded-lg object-cover" /> arboX
-          <br />
-          <span className="text-green-400">Sàn giao dịch tín chỉ Carbon</span>
+        <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight flex items-center justify-center gap-2 flex-wrap">
+          <img src="/logo.jpg" alt="CarboX" className="w-16 h-16 md:w-24 md:h-24 rounded-2xl object-cover inline-block" />
+          <span>arboX</span>
         </h1>
+        <p className="text-5xl md:text-7xl font-black text-green-400 mb-6 leading-tight text-center">
+          Sàn giao dịch tín chỉ Carbon
+        </p>
 
         {/* Mô tả */}
         <p className="text-gray-400 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
