@@ -120,7 +120,12 @@ const Marketplace: NextPage = () => {
         <div className="flex gap-3 mb-8">
           {[
             { key: 'all', label: `Tất cả (${projects.length})` },
-            { key: 'active', label: `🟢 Đang mở (${projects.filter(p => p.status?.toLowerCase() === 'approved').length})` },
+            { key: 'active', label: `🟢 Đang mở (${projects.filter(p => 
+              p.status?.toLowerCase() === 'approved' && 
+              p.activeListingId && 
+              p.listedTokens && 
+              p.listedTokens > 0
+            ).length})` },
             { key: 'pending', label: `⏳ Chờ duyệt (${pendingCount})` },
             { key: 'mine', label: '🧾 Giao dịch của tôi' },
           ].map((f) => (
